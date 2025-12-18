@@ -1,0 +1,6 @@
+Coloca aquí tus imágenes de aviones personalizados:
+- avion1.png
+- mi_nave.jpg
+- super_caza.jpeg
+
+El juego detectará automáticamente estas imágenes y creará nuevos aviones seleccionables en el Hangar.

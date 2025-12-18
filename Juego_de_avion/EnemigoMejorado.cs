@@ -1,51 +1,37 @@
 using System;
 using System.Drawing;
-using System.IO;
 
 namespace JuegoDeAvion
 {
-    /// <summary>
-    /// Representa una nave enemiga que se mueve verticalmente y dispara.
-    /// </summary>
-    public class Enemigo
+    public class EnemigoMejorado
     {
-        /// <summary>El área rectangular que ocupa el enemigo, usada para colisiones y posición.</summary>
         public Rectangle Bounds { get; private set; }
-        
-        /// <summary>Puntos de vida actuales del enemigo.</summary>
         public int VidaActual { get; private set; }
-        
-        /// <summary>Máximos puntos de vida del enemigo.</summary>
         public int VidaMaxima { get; private set; }
+        public int TipoEnemigo { get; private set; }
 
         private int velocidad;
         private int cooldownDisparo = 0;
-        private int tipoEnemigo;
         private Image? imagenEnemigo = null;
 
-        /// <summary>
-        /// Crea una nueva nave enemiga.
-        /// </summary>
-        public Enemigo(int x, int y, int ancho, int alto, int vel, int tipo = 1)
+        public EnemigoMejorado(int x, int y, int ancho, int alto, int vel, int tipo)
         {
             this.Bounds = new Rectangle(x, y, ancho, alto);
             this.velocidad = vel;
-            this.tipoEnemigo = tipo;
+            this.TipoEnemigo = tipo;
             this.VidaMaxima = DisenosEnemigos.ObtenerVida(tipo);
             this.VidaActual = this.VidaMaxima;
             
-            // Los enemigos normales no usan imágenes, solo polígonos
+            // Los enemigos mejorados no usan imágenes, solo polígonos
             imagenEnemigo = null;
         }
 
-        /// <summary>Reduce la vida del enemigo.</summary>
         public void RecibirDano(int cantidad)
         {
             VidaActual -= cantidad;
             if (VidaActual < 0) VidaActual = 0;
         }
 
-        /// <summary>Mueve el enemigo verticalmente hacia abajo.</summary>
         public void Mover(int anchoPantallaActual)
         {
             Rectangle r = Bounds;
@@ -54,27 +40,21 @@ namespace JuegoDeAvion
             if (cooldownDisparo > 0) cooldownDisparo--;
         }
 
-        /// <summary>
-        /// Determina si el enemigo debe disparar en este frame.
-        /// </summary>
-        /// <returns>True si debe disparar, de lo contrario false.</returns>
         public bool QuiereDisparar(Random rnd)
         {
             if (cooldownDisparo == 0 && Bounds.Y > 50)
             {
-                if (rnd.Next(100) < 2) // 2% de probabilidad por frame
+                if (rnd.Next(100) < 2)
                 {
-                    cooldownDisparo = 100; // Tiempo de espera antes de volver a disparar
+                    cooldownDisparo = 100;
                     return true;
                 }
             }
             return false;
         }
 
-        /// <summary>Dibuja el enemigo y su barra de vida en pantalla.</summary>
         public void Dibujar(Graphics g)
         {
-            // Dibuja la barra de vida si ha recibido daño
             if (VidaActual < VidaMaxima)
             {
                 float porcentajeVida = (float)VidaActual / VidaMaxima;
@@ -82,14 +62,14 @@ namespace JuegoDeAvion
                 g.FillRectangle(Brushes.Green, Bounds.X, Bounds.Y - 10, Bounds.Width * porcentajeVida, 5);
             }
 
-            // Los enemigos normales siempre usan polígonos, no imágenes
+            // Los enemigos mejorados siempre usan polígonos, no imágenes
             if (imagenEnemigo != null)
             {
                 g.DrawImage(imagenEnemigo, Bounds);
             }
             else
             {
-                Point[] puntos = DisenosEnemigos.ObtenerPuntos(tipoEnemigo);
+                Point[] puntos = DisenosEnemigos.ObtenerPuntos(TipoEnemigo);
                 if (puntos != null && puntos.Length >= 3)
                 {
                     int minX = int.MaxValue, minY = int.MaxValue;
@@ -117,7 +97,7 @@ namespace JuegoDeAvion
                         );
                     }
                     
-                    using (SolidBrush brush = new SolidBrush(DisenosEnemigos.ObtenerColor(tipoEnemigo)))
+                    using (SolidBrush brush = new SolidBrush(DisenosEnemigos.ObtenerColor(TipoEnemigo)))
                     {
                         g.FillPolygon(brush, puntosEscalados);
                     }
@@ -125,7 +105,6 @@ namespace JuegoDeAvion
             }
         }
 
-        /// <summary>Comprueba si el enemigo ha salido de la pantalla por la parte inferior.</summary>
         public bool FueraDePantalla(int altoPantalla)
         {
             return Bounds.Y > altoPantalla;

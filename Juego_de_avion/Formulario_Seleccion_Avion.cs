@@ -2,6 +2,7 @@ using System;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 
 namespace JuegoDeAvion
@@ -24,23 +25,23 @@ namespace JuegoDeAvion
 
             indiceActual = DatosGlobales.IndiceAvionSeleccionado;
 
-            TableLayoutPanel panelCentral = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 3 };
+            TableLayoutPanel panelCentral = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, RowCount = 3, Padding = new Padding(20) };
             panelCentral.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
             panelCentral.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
             panelCentral.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-            panelCentral.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F));
-            panelCentral.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            panelCentral.RowStyles.Add(new RowStyle(SizeType.Absolute, 150F));
+            panelCentral.RowStyles.Add(new RowStyle(SizeType.Percent, 15F));
+            panelCentral.RowStyles.Add(new RowStyle(SizeType.Percent, 60F));
+            panelCentral.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
             this.Controls.Add(panelCentral);
 
-            lblNombreAvion = new Label { Font = new Font("Courier New", 28, FontStyle.Bold), ForeColor = Color.Lime, AutoSize = true, Anchor = AnchorStyles.None };
-            picAvion = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.CenterImage };
+            lblNombreAvion = new Label { Font = new Font("Courier New", 24, FontStyle.Bold), ForeColor = Color.Lime, AutoSize = true, Anchor = AnchorStyles.None };
+            picAvion = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom, Margin = new Padding(20) };
             picAvion.Paint += PicAvion_Paint;
-            lblStats = new Label { Font = new Font("Courier New", 18), ForeColor = Color.White, AutoSize = true, Anchor = AnchorStyles.None };
+            lblStats = new Label { Font = new Font("Courier New", 16), ForeColor = Color.White, AutoSize = true, Anchor = AnchorStyles.Top, TextAlign = ContentAlignment.TopCenter };
             
-            Button btnAnterior = CrearBoton("<", new Size(70, 70), new Font("Courier New", 24, FontStyle.Bold));
-            Button btnSiguiente = CrearBoton(">", new Size(70, 70), new Font("Courier New", 24, FontStyle.Bold));
-            btnSeleccionar = CrearBoton("SELECCIONAR", new Size(400, 60), new Font("Courier New", 18, FontStyle.Bold));
+            Button btnAnterior = CrearBoton("<", new Size(60, 60), new Font("Courier New", 24, FontStyle.Bold));
+            Button btnSiguiente = CrearBoton(">", new Size(60, 60), new Font("Courier New", 24, FontStyle.Bold));
+            btnSeleccionar = CrearBoton("SELECCIONAR", new Size(300, 50), new Font("Courier New", 16, FontStyle.Bold));
             
             panelCentral.Controls.Add(lblNombreAvion, 1, 0);
             panelCentral.Controls.Add(btnAnterior, 0, 1);
@@ -62,22 +63,44 @@ namespace JuegoDeAvion
         private void PicAvion_Paint(object? sender, PaintEventArgs e)
         {
             TipoAvion avionTipo = DatosGlobales.Aviones[indiceActual];
-            Point[] rawPoints = Avion.GetShipPoints(avionTipo.TipoPoligono);
-            if (rawPoints == null || rawPoints.Length < 3) return;
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.None;
             g.InterpolationMode = InterpolationMode.NearestNeighbor;
             g.Clear(this.BackColor);
-            int minX = rawPoints.Min(p => p.X); int maxX = rawPoints.Max(p => p.X);
-            int minY = rawPoints.Min(p => p.Y); int maxY = rawPoints.Max(p => p.Y);
-            float anchoOriginal = Math.Max(1, maxX - minX); float altoOriginal = Math.Max(1, maxY - minY);
-            float ratio = Math.Min((picAvion.Width - 40) / anchoOriginal, (picAvion.Height - 40) / altoOriginal);
-            PointF[] scaledPoints = rawPoints.Select(p => new PointF(20 + (p.X - minX) * ratio, 20 + (p.Y - minY) * ratio)).ToArray();
-            using (SolidBrush b = new SolidBrush(avionTipo.ColorPrincipal))
-            using (Pen p = new Pen(Color.White, 3))
+
+            // Si es un avión personalizado, dibuja la imagen
+            if (avionTipo.RutaImagen != null)
             {
-                g.FillPolygon(b, scaledPoints);
-                g.DrawPolygon(p, scaledPoints);
+                try
+                {
+                    using (var fs = new FileStream(avionTipo.RutaImagen, FileMode.Open, FileAccess.Read))
+                    using (Image img = Image.FromStream(fs))
+                    {
+                        g.DrawImage(img, picAvion.ClientRectangle);
+                    }
+                }
+                catch { /* Dibujar algo si falla */ }
+            }
+            // Si no, dibuja el polígono
+            else
+            {
+                Point[] rawPoints = Avion.GetShipPoints(avionTipo.TipoPoligono);
+                if (rawPoints == null || rawPoints.Length < 3) return;
+                
+                int minX = rawPoints.Min(p => p.X); int maxX = rawPoints.Max(p => p.X);
+                int minY = rawPoints.Min(p => p.Y); int maxY = rawPoints.Max(p => p.Y);
+                float anchoOriginal = Math.Max(1, maxX - minX); float altoOriginal = Math.Max(1, maxY - minY);
+                float ratio = Math.Min((picAvion.Width - 40) / anchoOriginal, (picAvion.Height - 40) / altoOriginal);
+                float offsetX = (picAvion.Width - (anchoOriginal * ratio)) / 2;
+                float offsetY = (picAvion.Height - (altoOriginal * ratio)) / 2;
+                PointF[] scaledPoints = rawPoints.Select(p => new PointF(offsetX + (p.X - minX) * ratio, offsetY + (p.Y - minY) * ratio)).ToArray();
+                
+                using (SolidBrush b = new SolidBrush(avionTipo.ColorPrincipal))
+                using (Pen p = new Pen(Color.White, 3))
+                {
+                    g.FillPolygon(b, scaledPoints);
+                    g.DrawPolygon(p, scaledPoints);
+                }
             }
         }
 
@@ -101,7 +124,7 @@ namespace JuegoDeAvion
             }
             else
             {
-                btnSeleccionar.Text = $"COMPRAR ({avion.Precio} PUNTOS)";
+                btnSeleccionar.Text = $"COMPRAR ({avion.Precio} P)";
                 btnSeleccionar.Enabled = DatosGlobales.PuntosTotales >= avion.Precio;
             }
         }

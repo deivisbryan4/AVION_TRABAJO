@@ -13,14 +13,15 @@ namespace JuegoDeAvion
 
         public Menu_Principal()
         {
+            // Cargar todos los aviones al iniciar el juego
+            DatosGlobales.CargarAviones();
+
             Text = "Menú Principal";
-            // Resolución tipo celular horizontal (qHD)
             this.Size = new Size(960, 540);
             this.MinimumSize = new Size(800, 450);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.Black;
 
-            // Crear todos los controles con tamaños ajustados
             lblTitulo = new Label { Text = "GALAXY DEFENDER", Font = new Font("Courier New", 48, FontStyle.Bold), ForeColor = Color.Lime, AutoSize = true };
             lblNivel = new Label { Text = $"NIVEL: {nivelSeleccionado}", Font = new Font("Courier New", 24, FontStyle.Bold), ForeColor = Color.White, AutoSize = true };
             

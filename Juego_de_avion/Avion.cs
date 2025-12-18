@@ -45,6 +45,31 @@ namespace JuegoDeAvion
                         new(22, 23), new(15, 28), new(7, 20),
                         new(0, 25), new(30, 0)
                     };
+                case 4: // Tipo 4: Nave Galaga (diseño fiel al original)
+                    return new Point[] {
+                        // Cuerpo superior
+                        new(30, 0), new(33, 0), new(33, 3), new(36, 3), new(36, 6),
+                        new(39, 6), new(39, 9), new(42, 9), new(42, 20), new(39, 20),
+                        new(39, 23), new(36, 23), new(36, 26), new(33, 26), new(33, 29),
+                        new(30, 29), new(30, 26), new(27, 26), new(27, 23), new(24, 23),
+                        new(24, 20), new(21, 20), new(21, 9), new(24, 9), new(24, 6),
+                        new(27, 6), new(27, 3), new(30, 3),
+                        // Cuerpo inferior
+                        new(21, 23), new(21, 26), new(18, 26), new(18, 29), new(15, 29),
+                        new(15, 32), new(12, 32), new(12, 35), new(9, 35), new(9, 38),
+                        new(6, 38), new(6, 41), new(3, 41), new(3, 44), new(0, 44),
+                        new(0, 47), new(3, 47), new(3, 50), new(6, 50), new(6, 53),
+                        new(9, 53), new(9, 56), new(12, 56), new(12, 59), new(15, 59),
+                        new(15, 62), new(18, 62), new(18, 65), new(21, 65), new(21, 68),
+                        new(39, 68), new(39, 65), new(42, 65), new(42, 62), new(45, 62),
+                        new(45, 59), new(48, 59), new(48, 56), new(51, 56), new(51, 53),
+                        new(54, 53), new(54, 50), new(57, 50), new(57, 47), new(60, 47),
+                        new(60, 44), new(57, 44), new(57, 41), new(54, 41), new(54, 38),
+                        new(51, 38), new(51, 35), new(48, 35), new(48, 32), new(45, 32),
+                        new(45, 29), new(42, 29), new(42, 26), new(39, 26), new(39, 23),
+                        // Detalles interiores
+                        new(27, 26), new(27, 29), new(33, 29), new(33, 26)
+                    };
                 default: // Fallback: Un rombo simple si el tipo no existe
                     return new Point[] { new(0, 0), new(10, 0), new(10, 10), new(0, 10) };
             }

@@ -13,3 +13,12 @@ C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\obj\Debug\net8.0-wind
 C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\obj\Debug\net8.0-windows\Juego_de_avion.genruntimeconfig.cache
 C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\obj\Debug\net8.0-windows\ref\Juego_de_avion.dll
 C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\obj\Debug\net8.0-windows\Juego_de_avion.sourcelink.json
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\EscenariosDeNivel\escenario1.jpeg
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\EscenariosDeNivel\leeme.txt
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\EscenariosDeNivel\escenario2.jpg
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\EscenariosDeNivel\escenario3.jpg
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\EscenariosDeNivel\escenario4.jpg
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\EscenariosDeNivel\escenario5.jpeg
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\CrearAvion\avion1.jpg
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\CrearAvion\CrearAvion.cs
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\CrearAvion\leeme.txt

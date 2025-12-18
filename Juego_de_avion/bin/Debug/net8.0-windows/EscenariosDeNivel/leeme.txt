@@ -1,0 +1,8 @@
+Coloca aquí tus imágenes de fondo:
+- escenario1.png (o .jpg)
+- escenario2.png
+- escenario3.png
+- escenario4.png
+- escenario5.png
+
+El juego buscará estas imágenes automáticamente.

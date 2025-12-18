@@ -10,20 +10,20 @@ namespace JuegoDeAvion
     {
         private TipoAvion avionAMejorar;
         private Label lblPuntos;
-        private int escalaVisualizada = 0; // Qué escala estamos viendo (0-3)
+        private int escalaVisualizada = 0;
         
         // Tamaños de visualización para cada escala
         private Size[] tamanosEscala = new Size[] { 
             new Size(50, 70),   // Escala 0
-            new Size(100, 140), // Escala 1
-            new Size(150, 210), // Escala 2
-            new Size(200, 280)  // Escala 3
+            new Size(75, 105),  // Escala 1 (ajustado)
+            new Size(100, 140), // Escala 2 (ajustado)
+            new Size(125, 175)  // Escala 3 (ajustado)
         };
 
         public Formulario_Mejora_Avion()
         {
             avionAMejorar = DatosGlobales.Aviones[DatosGlobales.IndiceAvionSeleccionado];
-            escalaVisualizada = avionAMejorar.NivelEscala; // Empezar viendo la escala actual
+            escalaVisualizada = avionAMejorar.NivelEscala;
             lblPuntos = new Label();
             InitializeUserInterface();
         }
@@ -33,28 +33,28 @@ namespace JuegoDeAvion
             this.Controls.Clear();
 
             Text = "Astillero de Mejoras";
-            this.Size = new Size(960, 540);
+            this.Size = new Size(960, 540); // Mantenemos la resolución de celular
             this.MinimumSize = new Size(800, 450);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.Black;
 
             // Layout Principal
-            TableLayoutPanel panelPrincipal = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, ColumnCount = 3 };
+            TableLayoutPanel panelPrincipal = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 4, ColumnCount = 3, Padding = new Padding(10) };
             panelPrincipal.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
             panelPrincipal.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
             panelPrincipal.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-            panelPrincipal.RowStyles.Add(new RowStyle(SizeType.Absolute, 80F)); // Título
-            panelPrincipal.RowStyles.Add(new RowStyle(SizeType.Absolute, 50F)); // Puntos
-            panelPrincipal.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Nave
-            panelPrincipal.RowStyles.Add(new RowStyle(SizeType.Absolute, 100F)); // Botones
+            panelPrincipal.RowStyles.Add(new RowStyle(SizeType.Absolute, 60F)); // Título
+            panelPrincipal.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F)); // Puntos
+            panelPrincipal.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Nave y Stats
+            panelPrincipal.RowStyles.Add(new RowStyle(SizeType.Absolute, 80F)); // Botón de acción
             this.Controls.Add(panelPrincipal);
 
             // Título
-            Label lblTitulo = new Label { Text = $"NAVE: {avionAMejorar.Nombre.ToUpper()}", Font = new Font("Courier New", 28, FontStyle.Bold), ForeColor = Color.Lime, AutoSize = true, Anchor = AnchorStyles.None };
+            Label lblTitulo = new Label { Text = $"NAVE: {avionAMejorar.Nombre.ToUpper()}", Font = new Font("Courier New", 24, FontStyle.Bold), ForeColor = Color.Lime, AutoSize = true, Anchor = AnchorStyles.None };
             panelPrincipal.Controls.Add(lblTitulo, 1, 0);
 
             // Puntos
-            lblPuntos.Font = new Font("Courier New", 20, FontStyle.Bold);
+            lblPuntos.Font = new Font("Courier New", 18, FontStyle.Bold);
             lblPuntos.ForeColor = Color.White;
             lblPuntos.AutoSize = true;
             lblPuntos.Anchor = AnchorStyles.None;
@@ -62,50 +62,49 @@ namespace JuegoDeAvion
             panelPrincipal.Controls.Add(lblPuntos, 1, 1);
 
             // Botones de Navegación
-            Button btnPrev = CrearBoton("<", new Size(60, 60), new Font("Courier New", 24, FontStyle.Bold));
-            Button btnNext = CrearBoton(">", new Size(60, 60), new Font("Courier New", 24, FontStyle.Bold));
+            Button btnPrev = CrearBoton("<", new Size(50, 50), new Font("Courier New", 20, FontStyle.Bold));
+            Button btnNext = CrearBoton(">", new Size(50, 50), new Font("Courier New", 20, FontStyle.Bold));
             btnPrev.Click += (s, e) => CambiarEscala(-1);
             btnNext.Click += (s, e) => CambiarEscala(1);
             panelPrincipal.Controls.Add(btnPrev, 0, 2);
             panelPrincipal.Controls.Add(btnNext, 2, 2);
 
             // Panel Central (Contiene la info de la escala y la imagen)
-            Panel panelCentral = new Panel { Dock = DockStyle.Fill };
-            panelPrincipal.Controls.Add(panelCentral, 1, 2);
-
-            // Label de Escala
-            Label lblEscalaInfo = new Label { 
-                Text = $"ESCALA {escalaVisualizada}", 
-                Font = new Font("Courier New", 24, FontStyle.Bold), 
-                ForeColor = Color.Cyan, 
-                AutoSize = true, 
-                Location = new Point(10, 10) // Posición relativa al panel
-            };
-            // Centrar label en el panel
-            lblEscalaInfo.Location = new Point((panelPrincipal.GetColumnWidths()[1] - lblEscalaInfo.PreferredWidth) / 2, 10);
-            panelCentral.Controls.Add(lblEscalaInfo);
+            TableLayoutPanel panelContenidoCentral = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };
+            panelContenidoCentral.RowStyles.Add(new RowStyle(SizeType.Percent, 70F)); // PictureBox
+            panelContenidoCentral.RowStyles.Add(new RowStyle(SizeType.Percent, 30F)); // Stats
+            panelPrincipal.Controls.Add(panelContenidoCentral, 1, 2);
 
             // PictureBox para la nave
             PictureBox picNave = new PictureBox {
                 Size = tamanosEscala[escalaVisualizada],
                 SizeMode = PictureBoxSizeMode.Zoom,
                 BackColor = Color.FromArgb(20, 20, 20),
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.FixedSingle,
+                Anchor = AnchorStyles.None // Para centrarlo en la celda
             };
-            // Centrar PictureBox en el panel
-            picNave.Location = new Point((panelPrincipal.GetColumnWidths()[1] - picNave.Width) / 2, 60);
             picNave.Paint += PicNave_Paint;
-            panelCentral.Controls.Add(picNave);
+            panelContenidoCentral.Controls.Add(picNave, 0, 0);
+
+            // Label de Escala e Stats
+            Label lblEscalaInfo = new Label { 
+                Text = $"ESCALA {escalaVisualizada}\nVELOCIDAD: {avionAMejorar.Velocidad + (escalaVisualizada * 2)}\nVIDA: {avionAMejorar.VidaMaxima + escalaVisualizada}", 
+                Font = new Font("Courier New", 16, FontStyle.Bold), 
+                ForeColor = Color.Cyan, 
+                AutoSize = true, 
+                Anchor = AnchorStyles.None,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            panelContenidoCentral.Controls.Add(lblEscalaInfo, 0, 1);
 
             // Botón de Acción (Mejorar/Estado)
-            Button btnAccion = CrearBoton("", new Size(300, 60), new Font("Courier New", 16, FontStyle.Bold));
+            Button btnAccion = CrearBoton("", new Size(300, 50), new Font("Courier New", 16, FontStyle.Bold));
             ConfigurarBotonAccion(btnAccion);
             panelPrincipal.Controls.Add(btnAccion, 1, 3);
 
             // Botón Volver
-            Button btnVolver = CrearBoton("VOLVER", new Size(150, 50), new Font("Courier New", 14, FontStyle.Bold));
+            Button btnVolver = CrearBoton("VOLVER", new Size(100, 40), new Font("Courier New", 12, FontStyle.Bold));
             btnVolver.Click += (s, e) => this.Close();
-            // Lo ponemos en una esquina o abajo
             panelPrincipal.Controls.Add(btnVolver, 2, 0); 
         }
 
@@ -114,7 +113,7 @@ namespace JuegoDeAvion
             escalaVisualizada += direccion;
             if (escalaVisualizada < 0) escalaVisualizada = 0;
             if (escalaVisualizada > 3) escalaVisualizada = 3;
-            InitializeUserInterface(); // Reconstruir UI para ajustar tamaños
+            InitializeUserInterface();
         }
 
         private void ConfigurarBotonAccion(Button btn)
@@ -170,7 +169,6 @@ namespace JuegoDeAvion
             int minY = rawPoints.Min(p => p.Y); int maxY = rawPoints.Max(p => p.Y);
             float anchoOriginal = Math.Max(1, maxX - minX); float altoOriginal = Math.Max(1, maxY - minY);
             
-            // Ajustar al tamaño del PictureBox (que ya tiene el tamaño de la escala)
             float ratioX = (float)(pic.Width - 10) / anchoOriginal;
             float ratioY = (float)(pic.Height - 10) / altoOriginal;
 

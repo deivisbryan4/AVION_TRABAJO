@@ -4,6 +4,7 @@ namespace JuegoDeAvion
 {
     /// <summary>
     /// Clase estática que actúa como base de datos de diseños para los enemigos.
+    /// Inspirado en los diseños de naves de Galaxian con una paleta "pixelred".
     /// </summary>
     public static class DisenosEnemigos
     {
@@ -15,31 +16,35 @@ namespace JuegoDeAvion
         {
             switch (tipo)
             {
-                case 1: // Tipo 1: Caza Ligero (Triángulo invertido clásico)
+                case 1: // Tipo 1: Dron Galaxian (Rojo)
                     return new Point[] {
-                        new Point(25, 50), // Punta abajo
-                        new Point(0, 0),   // Esq sup izq
-                        new Point(50, 0)   // Esq sup der
+                        new Point(25, 0),  // Pico superior
+                        new Point(50, 20), // Ala derecha
+                        new Point(40, 25),
+                        new Point(25, 40), // Cola
+                        new Point(10, 25),
+                        new Point(0, 20),  // Ala izquierda
+                        new Point(25, 0)   // Cierre
                     };
 
-                case 2: // Tipo 2: Platillo Volador (OVNI)
+                case 2: // Tipo 2: Comandante Galaxian (Magenta)
                     return new Point[] {
-                        new Point(15, 15), // Inicio cúpula izq
-                        new Point(25, 0),  // Tope cúpula
-                        new Point(35, 15), // Fin cúpula der
-                        new Point(50, 25), // Borde disco der
-                        new Point(35, 40), // Base disco der
-                        new Point(15, 40), // Base disco izq
-                        new Point(0, 25),  // Borde disco izq
-                        new Point(15, 15)  // Cierre
+                        new Point(25, 0),  // Pico superior
+                        new Point(50, 15), // Ala superior derecha
+                        new Point(35, 15),
+                        new Point(45, 40), // Ala inferior derecha
+                        new Point(25, 30), // Cola
+                        new Point(5, 40),  // Ala inferior izquierda
+                        new Point(15, 15),
+                        new Point(0, 15),  // Ala superior izquierda
+                        new Point(25, 0)   // Cierre
                     };
 
-                case 3: // Tipo 3: Rectángulo (Diseño personalizado)
+                case 3: // Tipo 3: Platillo Volador (OVNI Especial)
                     return new Point[] {
-                        new Point(0, 0), 
-                        new Point(0, 33), 
-                        new Point(59, 33), 
-                        new Point(59, 0)
+                        new Point(15, 15), new Point(25, 0), new Point(35, 15), // Cúpula
+                        new Point(50, 25), new Point(35, 40), new Point(15, 40), // Disco
+                        new Point(0, 25), new Point(15, 15)
                     };
 
                 default: // Fallback
@@ -52,9 +57,9 @@ namespace JuegoDeAvion
         {
             switch (tipo)
             {
-                case 1: return Color.MediumPurple;
-                case 2: return Color.LimeGreen;
-                case 3: return Color.DarkOrange; // Color para el rectángulo
+                case 1: return Color.FromArgb(255, 50, 50);   // Rojo Pixel
+                case 2: return Color.FromArgb(255, 80, 255);  // Magenta/Púrpura Pixel
+                case 3: return Color.FromArgb(0, 255, 255);   // Cian Pixel
                 default: return Color.Gray;
             }
         }
@@ -64,9 +69,9 @@ namespace JuegoDeAvion
         {
             switch (tipo)
             {
-                case 1: return 100;
-                case 2: return 200;
-                case 3: return 120;
+                case 1: return 100; // Dron estándar
+                case 2: return 150; // Comandante más resistente
+                case 3: return 80;  // OVNI más rápido y frágil
                 default: return 100;
             }
         }
