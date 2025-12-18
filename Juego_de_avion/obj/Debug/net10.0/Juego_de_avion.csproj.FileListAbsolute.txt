@@ -1,0 +1,4 @@
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\obj\Debug\net10.0\Juego_de_avion.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\obj\Debug\net10.0\Juego_de_avion.AssemblyInfoInputs.cache
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\obj\Debug\net10.0\Juego_de_avion.AssemblyInfo.cs
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\obj\Debug\net10.0\Juego_de_avion.csproj.CoreCompileInputs.cache
