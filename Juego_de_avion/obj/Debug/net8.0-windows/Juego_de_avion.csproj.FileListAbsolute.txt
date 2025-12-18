@@ -22,3 +22,4 @@ C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-wind
 C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\CrearAvion\avion1.jpg
 C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\CrearAvion\CrearAvion.cs
 C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\CrearAvion\leeme.txt
+C:\Users\deivi\RiderProjects\Juego_de_avion\Juego_de_avion\bin\Debug\net8.0-windows\test_juego.py

@@ -1,0 +1,128 @@
+================================================================================
+DOCUMENTACIÓN TÉCNICA - JUEGO DE AVIÓN (GALAXY DEFENDER)
+================================================================================
+
+1. DESCRIPCIÓN GENERAL
+--------------------------------------------------------------------------------
+"Galaxy Defender" es un videojuego de disparos espacial (Shoot 'em up) desarrollado 
+en C# utilizando Windows Forms y GDI+ para el renderizado gráfico. El jugador 
+controla una nave espacial que debe sobrevivir a oleadas infinitas de enemigos y 
+asteroides, mejorando su nave y superando niveles de dificultad creciente.
+
+El juego destaca por su estética retro "pixel art", su sistema de progresión 
+mediante puntos y mejoras, y su capacidad de personalización mediante la carga 
+de imágenes externas.
+
+2. ESTRUCTURA DEL PROYECTO
+--------------------------------------------------------------------------------
+El proyecto sigue una arquitectura orientada a objetos, separando la lógica del 
+juego, la representación visual y la gestión de datos.
+
+/Juego_de_avion
+│
+├── Program.cs                  # Punto de entrada de la aplicación.
+├── DatosGlobales.cs            # Almacén de datos persistentes (puntos, naves).
+├── EntradaDeTeclado.cs         # Gestor centralizado de input (teclado).
+│
+├── /Lógica del Juego
+│   ├── Formulario_Principal.cs # Motor del juego (Game Loop, colisiones, render).
+│   ├── Logica_del_jugador.cs   # Clase 'Jugador': Controla la nave del usuario.
+│   ├── Enemigos.cs             # Clase 'Enemigo': Naves hostiles con IA básica.
+│   ├── Obstaculos.cs           # Clase 'Obstaculo': Asteroides con física simple.
+│   ├── Bala.cs                 # Proyectiles del jugador.
+│   ├── BalaEnemiga.cs          # Proyectiles de los enemigos.
+│   └── Escenario.cs            # Gestión del fondo (imágenes + estrellas).
+│
+├── /Diseño y Recursos
+│   ├── Avion.cs                # Base de datos de diseños poligonales de naves.
+│   └── DisenosEnemigos.cs      # Base de datos de diseños de enemigos.
+│
+├── /Interfaz de Usuario (Menús)
+│   ├── Menu_Principal.cs              # Pantalla de inicio.
+│   ├── Formulario_Seleccion_Avion.cs  # Hangar para elegir/comprar naves.
+│   └── Formulario_Mejora_Avion.cs     # Astillero para mejorar estadísticas.
+│
+└── /Carpetas de Recursos Externos
+    ├── /EscenariosDeNivel      # Imágenes de fondo (.png, .jpg) y sprites.
+    └── /CrearAvion             # Imágenes para naves personalizadas.
+
+3. DETALLE DE CLASES PRINCIPALES
+--------------------------------------------------------------------------------
+
+3.1. CLASE JUGADOR (Logica_del_jugador.cs)
+------------------------------------------
+Representa la entidad controlada por el usuario.
+- Propiedades: Posición (X, Y), Vida, Velocidad, Tamaño.
+- Funcionalidad:
+  - Movimiento en 4 direcciones respetando los límites de la pantalla.
+  - Sistema de dibujo híbrido: Puede renderizar un polígono vectorial o una 
+    imagen cargada desde disco.
+  - Gestión de daño y vida.
+
+3.2. CLASE ENEMIGO (Enemigos.cs)
+--------------------------------
+Representa las naves hostiles.
+- IA: Se mueven verticalmente hacia abajo.
+- Combate: Disparan proyectiles hacia abajo con una cadencia aleatoria.
+- Visual: Utiliza diseños poligonales definidos en 'DisenosEnemigos.cs' o carga 
+  un sprite 'enemigo.png' si existe.
+- Variedad: Existen 3 tipos de enemigos con diferentes formas, colores y vida.
+
+3.3. CLASE OBSTACULO (Obstaculos.cs)
+------------------------------------
+Representa los asteroides.
+- Física: Se mueven verticalmente con una ligera oscilación horizontal y rotación.
+- Visual: Generación procedimental de polígonos irregulares para simular rocas.
+- Comportamiento: No disparan, pero causan gran daño por colisión.
+
+3.4. CLASE ESCENARIO (Escenario.cs)
+-----------------------------------
+Gestiona el ambiente visual del juego.
+- Capas de Renderizado:
+  1. Fondo: Carga imágenes estáticas desde la carpeta 'EscenariosDeNivel'.
+  2. Estrellas: Genera y anima un campo de estrellas sobre el fondo para dar 
+     sensación de profundidad y velocidad.
+- Sistema de Niveles: Cambia el fondo y el color de las estrellas según el nivel.
+
+3.5. CLASE DATOS GLOBALES (DatosGlobales.cs)
+--------------------------------------------
+Clase estática que actúa como "memoria" del juego entre formularios.
+- Persistencia: Guarda los puntos totales, el avión seleccionado y el estado 
+  de desbloqueo/mejora de cada nave.
+- Carga Dinámica: Al iniciar, escanea la carpeta 'CrearAvion' para añadir 
+  automáticamente cualquier imagen nueva como una nave jugable.
+
+4. LÓGICA DEL BUCLE DE JUEGO (GAME LOOP)
+--------------------------------------------------------------------------------
+El juego se ejecuta en 'Formulario_Principal.cs' mediante un Timer a ~60 FPS.
+
+En cada ciclo (Tick) se realizan las siguientes operaciones en orden:
+1. Input: Se lee el estado del teclado mediante 'EntradaDeTeclado'.
+2. Lógica del Jugador: Se actualiza la posición y se generan disparos.
+3. Lógica del Entorno: Se mueven el escenario, enemigos, obstáculos y balas.
+4. Generación: Se crean nuevos enemigos según la probabilidad del nivel actual.
+5. Colisiones: Se comprueban intersecciones entre todas las entidades.
+6. Renderizado: Se llama a Invalidate() para redibujar la pantalla con GDI+.
+
+5. SISTEMA DE DIFICULTAD Y PROGRESIÓN
+--------------------------------------------------------------------------------
+- Niveles: El jugador sube de nivel al alcanzar cierta puntuación.
+- Dificultad Dinámica:
+  - A mayor nivel, aumenta la velocidad de los enemigos.
+  - Aumenta la probabilidad de aparición de enemigos.
+  - Aumenta el límite máximo de enemigos simultáneos en pantalla.
+- Economía:
+  - Eliminar enemigos otorga puntos.
+  - Los puntos se usan en el 'Astillero' para mejorar Velocidad y Vida.
+  - Los puntos se usan en el 'Hangar' para desbloquear nuevas naves.
+
+6. REQUISITOS DEL SISTEMA
+--------------------------------------------------------------------------------
+- Sistema Operativo: Windows 7 o superior.
+- Framework: .NET 8.0 (Windows Desktop).
+- Archivos: El ejecutable debe estar acompañado de las carpetas 'EscenariosDeNivel' 
+  y 'CrearAvion' para cargar los recursos gráficos correctamente.
+
+================================================================================
+FIN DE LA DOCUMENTACIÓN
+================================================================================

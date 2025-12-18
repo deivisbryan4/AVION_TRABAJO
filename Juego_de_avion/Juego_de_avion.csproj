@@ -12,12 +12,15 @@
       <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
     </ItemGroup>
 
-    <!-- Copiar carpetas de recursos a la carpeta de salida -->
+    <!-- Copiar carpetas y archivos de recursos a la carpeta de salida -->
     <ItemGroup>
       <Content Include="EscenariosDeNivel\\**">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
       <Content Include="CrearAvion\\**">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="test_juego.py">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

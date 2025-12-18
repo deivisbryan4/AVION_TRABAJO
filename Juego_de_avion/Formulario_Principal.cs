@@ -34,6 +34,10 @@ namespace JuegoDeAvion
         // Control de dificultad
         private int maxEnemigosSimultaneos;
         private double probabilidadEnemigoBase;
+        
+        // Control de victoria y niveles
+        private int puntajeParaGanar = 1000; // Puntaje necesario para ganar el nivel
+        private int maxNivel = 5; // Máximo número de niveles
 
         #endregion
 
@@ -101,6 +105,7 @@ namespace JuegoDeAvion
             
             // 3. Comprobar lógica del juego
             VerificarColisiones();
+            VerificarCondicionVictoria();
             
             // 4. Redibujar la pantalla
             this.Invalidate();
@@ -337,17 +342,88 @@ namespace JuegoDeAvion
             }
         }
 
+        /// <summary>Verifica si el jugador ha alcanzado el puntaje necesario para ganar el nivel.</summary>
+        private void VerificarCondicionVictoria()
+        {
+            if (puntuacionPartida >= puntajeParaGanar)
+            {
+                Victoria();
+            }
+        }
+
+        /// <summary>Maneja la victoria del nivel actual.</summary>
+        private void Victoria()
+        {
+            juegoTerminado = true;
+            gameLoop.Stop();
+            DatosGlobales.PuntosTotales += puntuacionPartida;
+
+            if (nivelActual >= maxNivel)
+            {
+                // El jugador ha completado todos los niveles
+                MessageBox.Show($"¡FELICIDADES! Has completado todos los niveles.\nPuntuación final: {puntuacionPartida}\nPuntos totales: {DatosGlobales.PuntosTotales}", "¡VICTORIA COMPLETA!");
+                this.Close();
+            }
+            else
+            {
+                // Pasar al siguiente nivel
+                DialogResult result = MessageBox.Show($"¡Nivel {nivelActual} completado!\nPuntuación: {puntuacionPartida}\n\n¿Deseas continuar al nivel {nivelActual + 1}?", "¡VICTORIA!", MessageBoxButtons.YesNo);
+                
+                if (result == DialogResult.Yes)
+                {
+                    // Iniciar el siguiente nivel
+                    SiguienteNivel();
+                }
+                else
+                {
+                    // Volver al menú principal
+                    this.Close();
+                }
+            }
+        }
+
+        /// <summary>Inicia el siguiente nivel con mayor dificultad.</summary>
+        private void SiguienteNivel()
+        {
+            nivelActual++;
+            puntuacionPartida = 0;
+            juegoTerminado = false;
+            
+            // Aumentar dificultad
+            maxEnemigosSimultaneos = 3 + (nivelActual * 2);
+            probabilidadEnemigoBase = 0.5 + (nivelActual * 0.5);
+            puntajeParaGanar = 1000 * nivelActual; // Aumentar puntaje necesario
+            
+            // Resetear entidades
+            enemigos.Clear();
+            galaxianEnemies.Clear();
+            pixelArtEnemies.Clear();
+            obstaculos.Clear();
+            balasJugador.Clear();
+            balasEnemigas.Clear();
+            
+            // Resetear jugador
+            jugador = new Jugador(this.ClientSize.Width / 2, this.ClientSize.Height - 100);
+            
+            // Actualizar escenario
+            escenario.CambiarNivel(nivelActual);
+            
+            // Actualizar título
+            this.Text = $"Juego de Avión - Nivel {nivelActual}";
+            
+            // Reiniciar game loop
+            gameLoop.Start();
+        }
+
         /// <summary>Finaliza la partida, muestra la puntuación y cierra el formulario.</summary>
         private void GameOver()
         {
             juegoTerminado = true;
             gameLoop.Stop();
             DatosGlobales.PuntosTotales += puntuacionPartida;
-            MessageBox.Show($"¡Juego Terminado!\nPuntuación: {puntuacionPartida}\nPuntos Totales: {DatosGlobales.PuntosTotales}", "Game Over");
+            MessageBox.Show($"¡PERDISTE!\nPuntuación: {puntuacionPartida}\nPuntos Totales: {DatosGlobales.PuntosTotales}", "Game Over");
             this.Close();
         }
-
-        #endregion
 
         /// <summary>
         /// Dibuja todos los elementos del juego en la pantalla.
@@ -378,7 +454,7 @@ namespace JuegoDeAvion
             obstaculos.ForEach(o => o.Dibujar(g));
 
             // Dibujar HUD
-            string textoUI = $"PUNTOS: {puntuacionPartida} | NIVEL: {nivelActual}";
+            string textoUI = $"PUNTOS: {puntuacionPartida}/{puntajeParaGanar} | NIVEL: {nivelActual}";
             g.DrawString(textoUI, new Font("Courier New", 18, FontStyle.Bold), Brushes.White, 10, 10);
             
             float porcentajeVida = (float)jugador.VidaActual / jugador.VidaMaxima;
@@ -386,5 +462,6 @@ namespace JuegoDeAvion
             g.FillRectangle(Brushes.Green, 10, 40, 300 * porcentajeVida, 20);
             g.DrawRectangle(new Pen(Color.White, 2), 10, 40, 300, 20);
         }
+        #endregion
     }
 }
