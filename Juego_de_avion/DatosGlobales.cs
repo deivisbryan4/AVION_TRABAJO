@@ -3,6 +3,9 @@ using System.Drawing;
 
 namespace JuegoDeAvion
 {
+    /// <summary>
+    /// Define las propiedades y estadísticas de un tipo de avión.
+    /// </summary>
     public class TipoAvion
     {
         public string Nombre { get; set; }
@@ -27,11 +30,25 @@ namespace JuegoDeAvion
         }
     }
 
+    /// <summary>
+    /// Almacena datos persistentes del juego, como los puntos del jugador y los aviones disponibles.
+    /// Es una clase estática para que sus datos sean accesibles desde cualquier parte del código.
+    /// </summary>
     public static class DatosGlobales
     {
-        public static int PuntosTotales = 10000; // Puntos para gastar
+        /// <summary>
+        /// Puntos acumulados por el jugador para comprar y mejorar naves.
+        /// </summary>
+        public static int PuntosTotales = 10000; 
+        
+        /// <summary>
+        /// El índice del avión que el jugador ha seleccionado para usar en la partida.
+        /// </summary>
         public static int IndiceAvionSeleccionado = 0;
 
+        /// <summary>
+        /// Lista de todos los tipos de aviones disponibles en el juego, con sus estadísticas base.
+        /// </summary>
         public static List<TipoAvion> Aviones = new List<TipoAvion>()
         {
             new TipoAvion("Caza Estándar", 1, 8, 1, Color.Cyan, true, 0),

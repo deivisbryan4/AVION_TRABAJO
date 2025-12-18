@@ -14,29 +14,28 @@ namespace JuegoDeAvion
         public Menu_Principal()
         {
             Text = "Menú Principal";
-            this.Size = new Size(1280, 720);
-            this.MinimumSize = new Size(800, 600);
+            // Resolución tipo celular horizontal (qHD)
+            this.Size = new Size(960, 540);
+            this.MinimumSize = new Size(800, 450);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.BackColor = Color.Black;
 
-            // Crear todos los controles
-            lblTitulo = new Label { Text = "GALAXY DEFENDER", Font = new Font("Courier New", 72, FontStyle.Bold), ForeColor = Color.Lime, AutoSize = true };
-            lblNivel = new Label { Text = $"NIVEL: {nivelSeleccionado}", Font = new Font("Courier New", 36, FontStyle.Bold), ForeColor = Color.White, AutoSize = true };
+            // Crear todos los controles con tamaños ajustados
+            lblTitulo = new Label { Text = "GALAXY DEFENDER", Font = new Font("Courier New", 48, FontStyle.Bold), ForeColor = Color.Lime, AutoSize = true };
+            lblNivel = new Label { Text = $"NIVEL: {nivelSeleccionado}", Font = new Font("Courier New", 24, FontStyle.Bold), ForeColor = Color.White, AutoSize = true };
             
-            btnNivelMenos = CrearBoton("<", 0, 0, new Size(80, 80), new Font("Courier New", 24, FontStyle.Bold));
-            btnNivelMas = CrearBoton(">", 0, 0, new Size(80, 80), new Font("Courier New", 24, FontStyle.Bold));
+            btnNivelMenos = CrearBoton("<", 0, 0, new Size(50, 50), new Font("Courier New", 20, FontStyle.Bold));
+            btnNivelMas = CrearBoton(">", 0, 0, new Size(50, 50), new Font("Courier New", 20, FontStyle.Bold));
             
-            Size tamanoBoton = new Size(500, 90);
-            Font fuenteBoton = new Font("Courier New", 24, FontStyle.Bold);
+            Size tamanoBoton = new Size(300, 50);
+            Font fuenteBoton = new Font("Courier New", 16, FontStyle.Bold);
             btnJugar = CrearBoton("INICIAR MISIÓN", 0, 0, tamanoBoton, fuenteBoton);
             btnSeleccionar = CrearBoton("HANGAR", 0, 0, tamanoBoton, fuenteBoton);
             btnMejorar = CrearBoton("ASTILLERO (MEJORAS)", 0, 0, tamanoBoton, fuenteBoton);
             btnSalir = CrearBoton("SALIR", 0, 0, tamanoBoton, fuenteBoton);
 
-            // Añadir controles al formulario
             this.Controls.AddRange(new Control[] { lblTitulo, lblNivel, btnNivelMenos, btnNivelMas, btnJugar, btnSeleccionar, btnMejorar, btnSalir });
 
-            // Configurar eventos
             btnNivelMenos.Click += (s, e) => CambiarNivel(-1);
             btnNivelMas.Click += (s, e) => CambiarNivel(1);
             btnJugar.Click += (s, e) => {
@@ -49,21 +48,21 @@ namespace JuegoDeAvion
             btnMejorar.Click += (s, e) => new Formulario_Mejora_Avion().ShowDialog();
             btnSalir.Click += (s, e) => this.Close();
             
-            this.Resize += (s, e) => PosicionarControles(); // Evento Resize
-            PosicionarControles(); // Posicionar por primera vez
+            this.Resize += (s, e) => PosicionarControles();
+            PosicionarControles();
         }
 
         private void PosicionarControles()
         {
             int centroX = this.ClientSize.Width / 2;
             
-            lblTitulo.Location = new Point(centroX - (lblTitulo.Width / 2), 100);
-            lblNivel.Location = new Point(centroX - (lblNivel.Width / 2), 300);
-            btnNivelMenos.Location = new Point(lblNivel.Left - btnNivelMenos.Width - 10, 295);
-            btnNivelMas.Location = new Point(lblNivel.Right + 10, 295);
+            lblTitulo.Location = new Point(centroX - (lblTitulo.Width / 2), 50);
+            lblNivel.Location = new Point(centroX - (lblNivel.Width / 2), 150);
+            btnNivelMenos.Location = new Point(lblNivel.Left - btnNivelMenos.Width - 10, 145);
+            btnNivelMas.Location = new Point(lblNivel.Right + 10, 145);
 
-            int inicioY = 450;
-            int espacioEntreBotones = 120;
+            int inicioY = 220;
+            int espacioEntreBotones = 60;
             btnJugar.Location = new Point(centroX - btnJugar.Width / 2, inicioY);
             btnSeleccionar.Location = new Point(centroX - btnSeleccionar.Width / 2, inicioY + espacioEntreBotones);
             btnMejorar.Location = new Point(centroX - btnMejorar.Width / 2, inicioY + espacioEntreBotones * 2);
@@ -76,17 +75,18 @@ namespace JuegoDeAvion
             if (nivelSeleccionado < 1) nivelSeleccionado = 5;
             if (nivelSeleccionado > 5) nivelSeleccionado = 1;
             lblNivel.Text = $"NIVEL: {nivelSeleccionado}";
-            PosicionarControles(); // Reposicionar todo al cambiar el texto
+            PosicionarControles();
         }
 
         private Button CrearBoton(string texto, int x, int y, Size tamano, Font fuente)
         {
             Button btn = new Button { Text = texto, Size = tamano, Font = fuente };
+            btn.Location = new Point(x - (tamano.Width / 2), y);
             btn.BackColor = Color.Black;
             btn.ForeColor = Color.White;
             btn.FlatStyle = FlatStyle.Flat;
             btn.FlatAppearance.BorderColor = Color.Lime;
-            btn.FlatAppearance.BorderSize = 3;
+            btn.FlatAppearance.BorderSize = 2;
             btn.MouseEnter += (s, e) => { btn.BackColor = Color.Lime; btn.ForeColor = Color.Black; };
             btn.MouseLeave += (s, e) => { btn.BackColor = Color.Black; btn.ForeColor = Color.White; };
             return btn;

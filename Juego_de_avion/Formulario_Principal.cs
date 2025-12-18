@@ -8,42 +8,43 @@ namespace JuegoDeAvion
 {
     public partial class Formulario_Principal : Form
     {
-        private Avion avion;
+        private Jugador jugador;
         private Escenario escenario;
         private List<Enemigo> enemigos;
+        private List<Obstaculo> obstaculos;
         private List<Bala> balasJugador;
         private List<BalaEnemiga> balasEnemigas;
-        private InputHandler inputHandler; // NUEVO
+        private EntradaDeTeclado entradaDeTeclado;
 
         private System.Windows.Forms.Timer gameLoop;
         private bool disparoBloqueado = false;
         private bool juegoTerminado = false;
         private int puntuacionPartida = 0;
         private int nivelActual;
-        private int probabilidadEnemigo = 3;
         private Random rnd = new Random();
 
         public Formulario_Principal(int nivelSeleccionado = 1)
         {
             this.nivelActual = nivelSeleccionado;
             this.DoubleBuffered = true;
-            this.Size = new Size(1280, 720); 
-            this.MinimumSize = new Size(800, 600);
+            this.Size = new Size(960, 540); 
+            this.MinimumSize = new Size(800, 450);
             this.Text = $"Juego de Avión - Nivel {nivelActual}";
             this.BackColor = Color.Black;
             this.StartPosition = FormStartPosition.CenterScreen;
 
-            inputHandler = new InputHandler(); // Inicializamos el manejador de input
-            avion = new Avion(this.ClientSize.Width / 2, this.ClientSize.Height - 150);
-            escenario = new Escenario(this.ClientSize.Width, this.ClientSize.Height, 150);
+            entradaDeTeclado = new EntradaDeTeclado();
+            jugador = new Jugador(this.ClientSize.Width / 2, this.ClientSize.Height - 100);
+            escenario = new Escenario(this.ClientSize.Width, this.ClientSize.Height, 100);
             escenario.CambiarNivel(nivelActual);
             
             enemigos = new List<Enemigo>();
+            obstaculos = new List<Obstaculo>();
             balasJugador = new List<Bala>();
             balasEnemigas = new List<BalaEnemiga>();
 
-            this.KeyDown += (s, e) => inputHandler.ProcesarTecla(e, true); // Delegamos al handler
-            this.KeyUp += (s, e) => inputHandler.ProcesarTecla(e, false);   // Delegamos al handler
+            this.KeyDown += (s, e) => entradaDeTeclado.ProcesarTecla(e, true);
+            this.KeyUp += (s, e) => entradaDeTeclado.ProcesarTecla(e, false);
             this.Resize += (s, e) => escenario?.Redimensionar(this.ClientSize.Width, this.ClientSize.Height);
 
             gameLoop = new System.Windows.Forms.Timer { Interval = 16 };
@@ -55,16 +56,15 @@ namespace JuegoDeAvion
         {
             if (juegoTerminado) return;
 
-            // Usamos las propiedades del InputHandler
-            if (inputHandler.Izquierda) avion.MoverIzquierda();
-            if (inputHandler.Derecha) avion.MoverDerecha(this.ClientSize.Width);
-            if (inputHandler.Arriba) avion.MoverArriba();
-            if (inputHandler.Abajo) avion.MoverAbajo(this.ClientSize.Height);
-            if (inputHandler.Salir) this.Close();
+            if (entradaDeTeclado.Izquierda) jugador.MoverIzquierda();
+            if (entradaDeTeclado.Derecha) jugador.MoverDerecha(this.ClientSize.Width);
+            if (entradaDeTeclado.Arriba) jugador.MoverArriba();
+            if (entradaDeTeclado.Abajo) jugador.MoverAbajo(this.ClientSize.Height);
+            if (entradaDeTeclado.Salir) this.Close();
 
             GestionarDisparos();
             escenario.Mover();
-            GenerarEnemigos();
+            GenerarEntidades();
             MoverEntidades();
             VerificarColisiones();
             
@@ -73,9 +73,9 @@ namespace JuegoDeAvion
 
         private void GestionarDisparos()
         {
-            if (inputHandler.Disparar && !disparoBloqueado)
+            if (entradaDeTeclado.Disparar && !disparoBloqueado)
             {
-                Point p = avion.Centro;
+                Point p = jugador.Centro;
                 balasJugador.Add(new Bala(p.X, p.Y - 10));
                 disparoBloqueado = true;
                 
@@ -85,14 +85,23 @@ namespace JuegoDeAvion
             }
         }
 
-        private void GenerarEnemigos()
+        private void GenerarEntidades()
         {
-            if (rnd.Next(100) < probabilidadEnemigo)
+            // Generar un tipo de enemigo aleatorio
+            if (rnd.Next(100) < (2 + nivelActual))
+            {
+                int tipoEnemigo = rnd.Next(1, 4); // Genera un tipo entre 1 y 3
+                int x = rnd.Next(0, this.ClientSize.Width - 50);
+                int velocidad = rnd.Next(3, 6 + nivelActual);
+                enemigos.Add(new Enemigo(tipoEnemigo, x, -50, 50, 50, velocidad));
+            }
+            
+            // Generar asteroides
+            if (rnd.Next(100) < 4)
             {
                 int x = rnd.Next(0, this.ClientSize.Width - 60);
-                int velocidad = rnd.Next(4, 8 + nivelActual);
-                bool dispara = rnd.Next(100) < (10 + nivelActual * 5);
-                enemigos.Add(new Enemigo(x, -60, 60, 60, velocidad, dispara, this.ClientSize.Width));
+                int velocidad = rnd.Next(2, 5);
+                obstaculos.Add(new Obstaculo(x, -60, 60, 60, velocidad));
             }
         }
 
@@ -107,6 +116,10 @@ namespace JuegoDeAvion
                 }
             }
             enemigos.RemoveAll(e => e.FueraDePantalla(this.ClientSize.Height));
+            
+            obstaculos.ForEach(o => o.Mover(this.ClientSize.Width));
+            obstaculos.RemoveAll(o => o.FueraDePantalla(this.ClientSize.Height));
+
             balasJugador.ForEach(b => b.Mover());
             balasJugador.RemoveAll(b => !b.Activa);
             balasEnemigas.ForEach(b => b.Mover(this.ClientSize.Height));
@@ -117,37 +130,56 @@ namespace JuegoDeAvion
         {
             for (int i = enemigos.Count - 1; i >= 0; i--)
             {
-                if (avion.ObtenerRegion().IsVisible(enemigos[i].Bounds))
+                if (jugador.ObtenerRegion().IsVisible(enemigos[i].Bounds))
                 {
-                    avion.RecibirDano(40);
+                    jugador.RecibirDano(40);
                     enemigos.RemoveAt(i);
-                    if (avion.VidaActual <= 0) { GameOver(); return; }
+                    if (jugador.VidaActual <= 0) { GameOver(); return; }
+                }
+            }
+            for (int i = obstaculos.Count - 1; i >= 0; i--)
+            {
+                if (jugador.ObtenerRegion().IsVisible(obstaculos[i].Bounds))
+                {
+                    jugador.RecibirDano(60);
+                    obstaculos.RemoveAt(i);
+                    if (jugador.VidaActual <= 0) { GameOver(); return; }
                 }
             }
             for (int i = balasEnemigas.Count - 1; i >= 0; i--)
             {
-                if (avion.ObtenerRegion().IsVisible(balasEnemigas[i].Bounds))
+                if (jugador.ObtenerRegion().IsVisible(balasEnemigas[i].Bounds))
                 {
-                    avion.RecibirDano(25);
+                    jugador.RecibirDano(25);
                     balasEnemigas.RemoveAt(i);
-                    if (avion.VidaActual <= 0) { GameOver(); return; }
+                    if (jugador.VidaActual <= 0) { GameOver(); return; }
                 }
             }
 
             for (int i = balasJugador.Count - 1; i >= 0; i--)
             {
+                bool balaChoco = false;
                 for (int j = enemigos.Count - 1; j >= 0; j--)
                 {
                     if (balasJugador[i].Bounds.IntersectsWith(enemigos[j].Bounds))
                     {
                         enemigos[j].RecibirDano(50);
+                        if (enemigos[j].VidaActual <= 0) { enemigos.RemoveAt(j); puntuacionPartida += 100; }
                         balasJugador.RemoveAt(i);
-                        if (enemigos[j].VidaActual <= 0)
-                        {
-                            enemigos.RemoveAt(j);
-                            puntuacionPartida += 50;
-                        }
+                        balaChoco = true;
                         break; 
+                    }
+                }
+                if (balaChoco) continue;
+
+                for (int k = obstaculos.Count - 1; k >= 0; k--)
+                {
+                    if (balasJugador[i].Bounds.IntersectsWith(obstaculos[k].Bounds))
+                    {
+                        obstaculos[k].RecibirDano(50);
+                        if (obstaculos[k].VidaActual <= 0) { obstaculos.RemoveAt(k); puntuacionPartida += 20; }
+                        balasJugador.RemoveAt(i);
+                        break;
                     }
                 }
             }
@@ -170,19 +202,20 @@ namespace JuegoDeAvion
             g.InterpolationMode = InterpolationMode.NearestNeighbor;
 
             escenario.Dibujar(g);
-            avion.Dibujar(g);
+            jugador.Dibujar(g);
 
             balasJugador.ForEach(b => b.Dibujar(g));
             balasEnemigas.ForEach(b => b.Dibujar(g));
             enemigos.ForEach(e => e.Dibujar(g));
+            obstaculos.ForEach(o => o.Dibujar(g));
 
             string textoUI = $"PUNTOS: {puntuacionPartida} | NIVEL: {nivelActual}";
-            g.DrawString(textoUI, new Font("Courier New", 28, FontStyle.Bold), Brushes.White, 20, 20);
+            g.DrawString(textoUI, new Font("Courier New", 18, FontStyle.Bold), Brushes.White, 10, 10);
             
-            float porcentajeVida = (float)avion.VidaActual / avion.VidaMaxima;
-            g.FillRectangle(Brushes.Red, 20, 70, 400, 30);
-            g.FillRectangle(Brushes.Green, 20, 70, 400 * porcentajeVida, 30);
-            g.DrawRectangle(new Pen(Color.White, 3), 20, 70, 400, 30);
+            float porcentajeVida = (float)jugador.VidaActual / jugador.VidaMaxima;
+            g.FillRectangle(Brushes.Red, 10, 40, 300, 20);
+            g.FillRectangle(Brushes.Green, 10, 40, 300 * porcentajeVida, 20);
+            g.DrawRectangle(new Pen(Color.White, 2), 10, 40, 300, 20);
         }
     }
 }
